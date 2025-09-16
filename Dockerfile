@@ -6,13 +6,13 @@ RUN git clone https://github.com/massgravel/massgrave.dev.git && \
     ([[ "$TAG" = "latest" ]] || git checkout ${TAG}) && \
     rm -rf .git
 
-FROM node:alpine AS build
+FROM --platform=$BUILDPLATFORM node:alpine AS build
 
 WORKDIR /massgrave.dev
 COPY --from=base /git/massgrave.dev .
-RUN npm install && \
+RUN npm ci && \
     npm run build
 
-FROM lipanski/docker-static-website
+FROM joseluisq/static-web-server
 
-COPY --from=build /massgrave.dev/build .
+COPY --from=build /massgrave.dev/build ./public
